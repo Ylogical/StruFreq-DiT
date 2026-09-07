@@ -217,18 +217,8 @@ training_logger.py    logging and loss curves
 util/model_util.py    2D RoPE, sincos positional embedding, RMSNorm
 ```
 
-## Citation
 
-```bibtex
-@article{hou2026medsegdit,
-  title   = {MedSegDiT: A Diffusion Transformer for Medical Image Segmentation},
-  author  = {Hou, Yupeng and Qi, Hongda},
-  year    = {2026}
-}
-```
 
-## Acknowledgements
+## License
 
-The Transformer backbone follows [DiT](https://github.com/facebookresearch/DiT)
-and [LightningDiT](https://github.com/hustvl/LightningDiT); the mask-space
-diffusion with direct clean-target prediction follows JiT.
+Released under the [MIT License](LICENSE).
