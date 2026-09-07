@@ -1,0 +1,19 @@
+name: medsegdit
+channels:
+  - pytorch
+  - nvidia
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - pytorch-cuda=12.4
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  - numpy=1.26
+  - scipy
+  - matplotlib
+  - pillow
+  - pip:
+    - tqdm==4.66.4
+    - einops==0.8.1
+    - tensorboard==2.16.2
