@@ -1,20 +1,15 @@
 # MedSegDiT
 
-**MedSegDiT: A Diffusion Transformer for Medical Image Segmentation**
+This is the official implementation of the TMI paper under review: **MedSegDiT: A
+Diffusion Transformer for Medical Image Segmentation**.
 
 MedSegDiT casts segmentation as an image-conditioned denoising process in the
 **segmentation-mask space**: a Diffusion Transformer backbone denoises a noisy
-mask conditioned on the medical image and predicts the clean mask
-$\hat{y}_0$ directly at every timestep. Two designs adapt the plain Diffusion
-Transformer to medical segmentation:
-
-* **SSE** (Spatial Structure Enhancement) — dual-stream multi-scale encoding of
-  the image and the noisy mask, with a symmetric progressive decoder, which
-  restores the high-resolution recovery path a token-only backbone lacks.
-* **DFCA + PBDF** (Diffusion Frequency Cross-Attention with a Parametric
-  Band-Decoupling Filter) — the image condition is split by frequency band into
-  a semantic stream and a detail stream, which are fused adaptively along the
-  diffusion timestep, so the guidance is stage-aware.
+mask conditioned on the medical image and predicts the clean mask $\hat{y}_0$
+directly at every timestep. Two designs adapt the plain Diffusion Transformer to
+medical segmentation: **SSE** (Spatial Structure Enhancement) and **DFCA**
+(Diffusion Frequency Cross-Attention) with a parametric band-decoupling filter
+**PBDF**.
 
 ![MedSegDiT framework](assets/framework.png)
 
@@ -26,22 +21,28 @@ inference always build the same architecture.
 
 ## Method
 
-### Pipeline
-
 At a denoising step `t`, the image `x` and the noisy mask `y_t` go through the
-two SSE encoding branches, which produce backbone tokens plus three levels of
+two **SSE** encoding branches, which produce backbone tokens plus multi-scale
 skip features each. The mask tokens run through `L` MedSegDiT blocks
 (self-attention with 2D RoPE + SwiGLU FFN, modulated by the timestep with
-adaLN-Zero); after every block, DFCA injects the frequency-decoupled image
-condition. The SSE decoder then upsamples the refined tokens, fusing the
-image-stream and mask-stream skips at each scale, and a `tanh` output layer
-gives the clean-mask estimate.
+adaLN-Zero), and **DFCA** injects the image condition after every block. The SSE
+decoder then upsamples the refined tokens, fusing the image-stream and
+mask-stream skips at each scale, and a `tanh` output layer gives the clean-mask
+estimate. The image condition reaches the mask stream through DFCA only, so
+image tokens never enter the backbone self-attention.
 
-The image condition reaches the mask stream **through DFCA only**: the
-conditioning vector `c` carries the timestep alone, and image tokens never
-enter the backbone self-attention. This keeps the self-attention cost at
-`O(N²D)` over the `N` mask tokens instead of growing with the concatenated
-sequence.
+![DFCA module](assets/dfca.png)
+
+DFCA takes the mask tokens as queries and the image tokens as keys/values, and
+splits the latter by frequency band into a semantic stream and a detail stream,
+each with its own attention temperature. **PBDF** makes that band split
+learnable through two bandwidths `sigma_s < sigma_n`, and a timestep-dependent
+gate `alpha(t)` mixes the two streams, shifting from semantics at high noise to
+detail as `t` decreases.
+
+<p align="center">
+  <img src="assets/pbdf.png" width="62%" />
+</p>
 
 | Component | Where in the code |
 | --- | --- |
@@ -50,28 +51,6 @@ sequence.
 | DFCA + PBDF condition injection | `DFCA`, `DFCA._freq_decompose` |
 | SSE decoding path (symmetric decoder, dual-stream skips) | `UNetDecoder`, `TimeModulatedSkip` |
 | Forward diffusion, DDIM sampling, training loss | `diffusion_utils.py` |
-
-### DFCA: frequency-decoupled condition injection
-
-![DFCA module](assets/dfca.png)
-
-DFCA takes the mask tokens as queries and the image tokens as keys/values. The
-image tokens are decomposed by a 2D FFT into a low-frequency (semantic) band
-and a mid-to-high (detail/boundary) band, each feeding its own attention stream
-with its own temperature — smooth for semantics, sharp for detail. The two
-stream outputs are mixed by a timestep-dependent gate `α(t)`.
-
-<p align="center">
-  <img src="assets/pbdf.png" width="46%" />
-  <img src="assets/dfca_dynamics.png" width="46%" />
-</p>
-
-**PBDF** (left) makes the band split learnable: two bandwidths `σ_s < σ_n`
-define a low-pass gate and a band-pass gate, initialised to reproduce a fixed
-Gaussian split, so the model can adapt the partition to the data and keep the
-pure-noise top frequencies out of the detail stream. The learned `α(t)` (right)
-transitions from semantics-dominated at high noise to detail-dominated as
-`t → 0`, matching the whole-to-part behaviour of the denoising process.
 
 ---
 
