@@ -1,5 +1,5 @@
 """
-Dataset loaders for MedSegDiT (binary medical image segmentation).
+Dataset loaders for StruFreqDiT (binary medical image segmentation).
 
 Expected directory layout, relative to the project root (see README.md):
 

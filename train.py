@@ -1,5 +1,5 @@
 """
-MedSegDiT training entry point.
+StruFreqDiT training entry point.
 
 The model is trained from scratch (no pretrained weights) and relies on EMA,
 early stopping, weight decay and dropout for regularization.
@@ -19,7 +19,7 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
-from model_medsegdit import MedSegDiT_models
+from model_strufreq_dit import StruFreqDiT_models
 from dataset import get_dataloader_with_val
 from diffusion_utils import DiffusionSchedule, compute_loss
 from training_logger import TrainingLogger
@@ -31,20 +31,20 @@ _DATASET_DEFAULTS = {
     # Small datasets: many epochs are needed for the diffusion model to
     # converge. Early stop after patience x metrics_eval_freq epochs without
     # improvement, but not before es_min_epochs.
-    'glas':    {'image_size': 256, 'model': 'MedSegDiT-B/16', 'batch_size': 8,
+    'glas':    {'image_size': 256, 'model': 'StruFreqDiT-B/16', 'batch_size': 8,
                 'lr': 2e-4, 'epochs': 20000, 'warmup_epochs': 50,
                 'patience': 20, 'metrics_eval_freq': 30, 'es_min_epochs': 10000,
                 'weight_decay': 0.05, 'attn_drop': 0.1, 'proj_drop': 0.1},
-    'ph2':     {'image_size': 256, 'model': 'MedSegDiT-B/16', 'batch_size': 8,
+    'ph2':     {'image_size': 256, 'model': 'StruFreqDiT-B/16', 'batch_size': 8,
                 'lr': 2e-4, 'epochs': 20000, 'warmup_epochs': 50,
                 'patience': 20, 'metrics_eval_freq': 30, 'es_min_epochs': 10000,
                 'weight_decay': 0.05, 'attn_drop': 0.1, 'proj_drop': 0.1},
-    'imid':    {'image_size': 256, 'model': 'MedSegDiT-B/16', 'batch_size': 4,
+    'imid':    {'image_size': 256, 'model': 'StruFreqDiT-B/16', 'batch_size': 4,
                 'lr': 2e-4, 'epochs': 20000, 'warmup_epochs': 50,
                 'patience': 20, 'metrics_eval_freq': 30, 'es_min_epochs': 10000,
                 'weight_decay': 0.05, 'attn_drop': 0.1, 'proj_drop': 0.1},
     # High-resolution nuclei dataset: 512x512 input with patch size 32.
-    'monuseg': {'image_size': 512, 'model': 'MedSegDiT-B/32', 'batch_size': 4,
+    'monuseg': {'image_size': 512, 'model': 'StruFreqDiT-B/32', 'batch_size': 4,
                 'lr': 1e-4, 'epochs': 20000, 'warmup_epochs': 60,
                 'patience': 20, 'metrics_eval_freq': 25, 'es_min_epochs': 10000,
                 'weight_decay': 0.05, 'attn_drop': 0.1, 'proj_drop': 0.1},
@@ -116,7 +116,7 @@ class EarlyStopping:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description='Train MedSegDiT',
+        description='Train StruFreqDiT',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog='''
 Examples:
@@ -135,7 +135,7 @@ Examples:
 
     # Model
     parser.add_argument('--model', type=str, default=None,
-                        choices=list(MedSegDiT_models.keys()),
+                        choices=list(StruFreqDiT_models.keys()),
                         help='Model variant (default: B/16, monuseg=B/32)')
     parser.add_argument('--image_channels', type=int, default=3)
 
@@ -394,7 +394,7 @@ def main():
 
     # Model
     print("Creating model...")
-    model = MedSegDiT_models[args.model](
+    model = StruFreqDiT_models[args.model](
         input_size=args.image_size,
         mask_channels=1,
         image_channels=args.image_channels,

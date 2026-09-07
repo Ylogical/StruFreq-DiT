@@ -1,5 +1,5 @@
 # --------------------------------------------------------
-# MedSegDiT: A Diffusion Transformer for Medical Image Segmentation.
+# StruFreqDiT: A Diffusion Transformer for Medical Image Segmentation.
 #
 # The diffusion process runs in the segmentation-mask space; the network is the
 # denoiser that predicts the clean mask x0 from a noisy mask x_t conditioned on
@@ -469,7 +469,7 @@ class DFCA(nn.Module):
         return self.proj(out)
 
 
-class MedSegDiTBlock(nn.Module):
+class StruFreqDiTBlock(nn.Module):
     """Transformer block with adaLN-Zero conditioning."""
     def __init__(self, hidden_size, num_heads, mlp_ratio=4.0, attn_drop=0.0, proj_drop=0.0):
         super().__init__()
@@ -491,7 +491,7 @@ class MedSegDiTBlock(nn.Module):
         return x
 
 
-class MedSegDiT_Segmentation(nn.Module):
+class StruFreqDiT_Segmentation(nn.Module):
 
     def __init__(
         self,
@@ -554,7 +554,7 @@ class MedSegDiT_Segmentation(nn.Module):
 
         # === Transformer blocks ===
         self.blocks = nn.ModuleList([
-            MedSegDiTBlock(hidden_size, num_heads, mlp_ratio=mlp_ratio,
+            StruFreqDiTBlock(hidden_size, num_heads, mlp_ratio=mlp_ratio,
                         attn_drop=attn_drop if (depth // 4 * 3 > i >= depth // 4) else 0.0,
                         proj_drop=proj_drop if (depth // 4 * 3 > i >= depth // 4) else 0.0)
             for i in range(depth)
@@ -669,47 +669,47 @@ class MedSegDiT_Segmentation(nn.Module):
 # Model variants
 # ============================================
 
-def MedSegDiT_S_16(**kwargs):
+def StruFreqDiT_S_16(**kwargs):
     """Small variant, patch_size=16 (4 blocks)."""
-    return MedSegDiT_Segmentation(depth=4, hidden_size=512, num_heads=8, patch_size=16, **kwargs)
+    return StruFreqDiT_Segmentation(depth=4, hidden_size=512, num_heads=8, patch_size=16, **kwargs)
 
-def MedSegDiT_S_32(**kwargs):
+def StruFreqDiT_S_32(**kwargs):
     """Small variant, patch_size=32."""
-    return MedSegDiT_Segmentation(depth=4, hidden_size=512, num_heads=8, patch_size=32, **kwargs)
+    return StruFreqDiT_Segmentation(depth=4, hidden_size=512, num_heads=8, patch_size=32, **kwargs)
 
-def MedSegDiT_B_16(**kwargs):
+def StruFreqDiT_B_16(**kwargs):
     """Base variant, patch_size=16 (6 blocks, tuned for small datasets)."""
-    return MedSegDiT_Segmentation(depth=6, hidden_size=768, num_heads=12, patch_size=16, **kwargs)
+    return StruFreqDiT_Segmentation(depth=6, hidden_size=768, num_heads=12, patch_size=16, **kwargs)
 
-def MedSegDiT_B_32(**kwargs):
+def StruFreqDiT_B_32(**kwargs):
     """Base variant, patch_size=32 (6 blocks, tuned for small datasets)."""
-    return MedSegDiT_Segmentation(depth=6, hidden_size=768, num_heads=12, patch_size=32, **kwargs)
+    return StruFreqDiT_Segmentation(depth=6, hidden_size=768, num_heads=12, patch_size=32, **kwargs)
 
-def MedSegDiT_L_16(**kwargs):
+def StruFreqDiT_L_16(**kwargs):
     """Large variant, patch_size=16 (8 blocks)."""
-    return MedSegDiT_Segmentation(depth=8, hidden_size=1024, num_heads=16, patch_size=16, **kwargs)
+    return StruFreqDiT_Segmentation(depth=8, hidden_size=1024, num_heads=16, patch_size=16, **kwargs)
 
-def MedSegDiT_L_32(**kwargs):
+def StruFreqDiT_L_32(**kwargs):
     """Large variant, patch_size=32 (8 blocks)."""
-    return MedSegDiT_Segmentation(depth=8, hidden_size=1024, num_heads=16, patch_size=32, **kwargs)
+    return StruFreqDiT_Segmentation(depth=8, hidden_size=1024, num_heads=16, patch_size=32, **kwargs)
 
-def MedSegDiT_H_16(**kwargs):
+def StruFreqDiT_H_16(**kwargs):
     """Huge variant, patch_size=16 (12 blocks)."""
-    return MedSegDiT_Segmentation(depth=12, hidden_size=1280, num_heads=16, patch_size=16, **kwargs)
+    return StruFreqDiT_Segmentation(depth=12, hidden_size=1280, num_heads=16, patch_size=16, **kwargs)
 
-def MedSegDiT_H_32(**kwargs):
+def StruFreqDiT_H_32(**kwargs):
     """Huge variant, patch_size=32 (12 blocks)."""
-    return MedSegDiT_Segmentation(depth=12, hidden_size=1280, num_heads=16, patch_size=32, **kwargs)
+    return StruFreqDiT_Segmentation(depth=12, hidden_size=1280, num_heads=16, patch_size=32, **kwargs)
 
 
 # Model registry
-MedSegDiT_models = {
-    'MedSegDiT-S/16': MedSegDiT_S_16,
-    'MedSegDiT-S/32': MedSegDiT_S_32,
-    'MedSegDiT-B/16': MedSegDiT_B_16,
-    'MedSegDiT-B/32': MedSegDiT_B_32,
-    'MedSegDiT-L/16': MedSegDiT_L_16,
-    'MedSegDiT-L/32': MedSegDiT_L_32,
-    'MedSegDiT-H/16': MedSegDiT_H_16,
-    'MedSegDiT-H/32': MedSegDiT_H_32,
+StruFreqDiT_models = {
+    'StruFreqDiT-S/16': StruFreqDiT_S_16,
+    'StruFreqDiT-S/32': StruFreqDiT_S_32,
+    'StruFreqDiT-B/16': StruFreqDiT_B_16,
+    'StruFreqDiT-B/32': StruFreqDiT_B_32,
+    'StruFreqDiT-L/16': StruFreqDiT_L_16,
+    'StruFreqDiT-L/32': StruFreqDiT_L_32,
+    'StruFreqDiT-H/16': StruFreqDiT_H_16,
+    'StruFreqDiT-H/32': StruFreqDiT_H_32,
 }

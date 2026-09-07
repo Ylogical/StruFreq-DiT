@@ -1,4 +1,4 @@
-name: medsegdit
+name: strufreq-dit
 channels:
   - pytorch
   - nvidia

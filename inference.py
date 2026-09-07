@@ -1,5 +1,5 @@
 """
-MedSegDiT inference and evaluation.
+StruFreqDiT inference and evaluation.
 
 Every test image is sampled K times with deterministic DDIM; the K soft
 predictions are averaged into an MMSE estimate and then thresholded. Reports
@@ -19,7 +19,7 @@ import torch
 from PIL import Image
 from tqdm import tqdm
 
-from model_medsegdit import MedSegDiT_models
+from model_strufreq_dit import StruFreqDiT_models
 from dataset import get_dataloader
 from diffusion_utils import DiffusionSchedule
 
@@ -275,12 +275,12 @@ def run_inference(model, diffusion, test_loader, device, args):
 # CLI
 # ----------------------------------------------
 def parse_args():
-    p = argparse.ArgumentParser(description='MedSegDiT inference')
+    p = argparse.ArgumentParser(description='StruFreqDiT inference')
     p.add_argument('--checkpoint',     type=str, required=True)
     p.add_argument('--dataset',        type=str, default='glas',
                    choices=['glas', 'monuseg', 'ph2', 'imid', 'tnbc'])
     p.add_argument('--model',          type=str, default=None,
-                   choices=list(MedSegDiT_models.keys()),
+                   choices=list(StruFreqDiT_models.keys()),
                    help='Model variant (default: read from the checkpoint, else B/16)')
     p.add_argument('--image_size',     type=int, default=None,
                    help='Input size (default: glas/ph2/imid=256, monuseg/tnbc=512)')
@@ -329,7 +329,7 @@ def main():
         print()
 
     if args.model is None:
-        args.model = cfg.get('model', 'MedSegDiT-B/16')
+        args.model = cfg.get('model', 'StruFreqDiT-B/16')
     elif 'model' in cfg and cfg['model'] != args.model:
         raise RuntimeError(f"--model {args.model} but the checkpoint was trained with "
                            f"{cfg['model']}; the architectures do not match.")
@@ -346,7 +346,7 @@ def main():
 
     # Model
     print(f"Creating model {args.model} @ {args.image_size}x{args.image_size}...")
-    model = MedSegDiT_models[args.model](
+    model = StruFreqDiT_models[args.model](
         input_size=args.image_size,
         mask_channels=1,
         image_channels=args.image_channels,
