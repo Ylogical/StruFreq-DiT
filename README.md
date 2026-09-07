@@ -1,7 +1,8 @@
 # StruFreq-DiT
 
-This is the official implementation of the TMI paper under review: **StruFreq-DiT: A
-Diffusion Transformer for Medical Image Segmentation**.
+This is the official implementation of the TMI paper under review:
+**StruFreq-DiT: A Structure-Aware Diffusion Transformer with Frequency-Adaptive
+Conditioning for Medical Image Segmentation**.
 
 StruFreq-DiT casts segmentation as an image-conditioned denoising process in the
 **segmentation-mask space**: a Diffusion Transformer backbone denoises a noisy
