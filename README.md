@@ -24,13 +24,12 @@ inference always build the same architecture.
 
 At a denoising step `t`, the image `x` and the noisy mask `y_t` go through the
 two **SSE** encoding branches, which produce backbone tokens plus multi-scale
-skip features each. The mask tokens run through `L` StruFreq-DiT blocks
-(self-attention with 2D RoPE + SwiGLU FFN, modulated by the timestep with
-adaLN-Zero), and **DFCA** injects the image condition after every block. The SSE
-decoder then upsamples the refined tokens, fusing the image-stream and
-mask-stream skips at each scale, and a `tanh` output layer gives the clean-mask
-estimate. The image condition reaches the mask stream through DFCA only, so
-image tokens never enter the backbone self-attention.
+skip features each. The mask tokens run through `L` StruFreq-DiT blocks of
+timestep-modulated self-attention, and **DFCA** injects the image condition
+after every block. The SSE decoder then upsamples the refined tokens, fusing the
+image-stream and mask-stream skips at each scale, and a `tanh` output layer
+gives the clean-mask estimate. The image condition reaches the mask stream
+through DFCA only, so image tokens never enter the backbone self-attention.
 
 ![DFCA module](assets/dfca.png)
 
@@ -44,14 +43,6 @@ detail as `t` decreases.
 <p align="center">
   <img src="assets/pbdf.png" width="62%" />
 </p>
-
-| Component | Where in the code |
-| --- | --- |
-| SSE encoding branch (image / noisy mask) | `MultiScaleEncoder` in `model_strufreq_dit.py` |
-| StruFreq-DiT block (MHSA + 2D RoPE + SwiGLU + adaLN-Zero) | `StruFreqDiTBlock` |
-| DFCA + PBDF condition injection | `DFCA`, `DFCA._freq_decompose` |
-| SSE decoding path (symmetric decoder, dual-stream skips) | `UNetDecoder`, `TimeModulatedSkip` |
-| Forward diffusion, DDIM sampling, training loss | `diffusion_utils.py` |
 
 ---
 
